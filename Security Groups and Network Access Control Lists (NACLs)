@@ -39,4 +39,30 @@ The difference between **Security Groups** and **Network Access Control Lists (N
 
 ---
 
-Would you like a diagram to visualize this difference or a real-world analogy to make it even clearer?
+Great question—especially for someone deep into AWS and infrastructure design like you. Here's a clear breakdown of how **Security Groups** and **Network ACLs (NACLs)** differ in AWS, both conceptually and practically:
+
+---
+
+### 🔐 Security Groups vs. NACLs in AWS
+
+| Feature                        | **Security Groups**                                      | **Network ACLs (NACLs)**                                  |
+|-------------------------------|-----------------------------------------------------------|------------------------------------------------------------|
+| **Scope**                     | Instance-level (e.g., EC2, ENI)                           | Subnet-level                                               |
+| **Statefulness**              | **Stateful** – return traffic is automatically allowed    | **Stateless** – return traffic must be explicitly allowed  |
+| **Rule Types**                | Only **Allow** rules                                      | Both **Allow** and **Deny** rules                         |
+| **Rule Evaluation**           | All rules are evaluated together                          | Rules are evaluated in **numbered order**                 |
+| **Default Behavior**          | Denies all inbound, allows all outbound                   | Allows all inbound/outbound by default                    |
+| **Use Case**                  | Granular control over individual resources                | Broad control over subnet-level traffic                   |
+| **Logging**                   | No built-in logging                                       | Can be logged via VPC Flow Logs                           |
+| **Max Rules**                 | 60 inbound/outbound per SG                                | 100 total per NACL                                        |
+| **Associations**              | Multiple SGs per instance                                 | One NACL per subnet                                       |
+
+---
+
+### 🧠 When to Use What
+
+- **Security Groups** are ideal for **application-level protection**—think EC2 instances, RDS databases, or Lambda ENIs.
+- **NACLs** are better for **network-level filtering**, like blocking malicious IPs across an entire subnet or enforcing compliance boundaries.
+
+---
+
