@@ -1,0 +1,60 @@
+Here’s a clear comparison between **Elastic Load Balancer (ELB)** and **Network Load Balancer (NLB)** in AWS:
+
+---
+
+### ⚖️ **Elastic Load Balancer (ELB)** – Umbrella Term
+**ELB** is the general term for AWS's load balancing service. It includes three types:
+
+1. **Application Load Balancer (ALB)** – Layer 7 (HTTP/HTTPS)
+2. **Network Load Balancer (NLB)** – Layer 4 (TCP/UDP)
+3. **Gateway Load Balancer (GLB)** – For third-party virtual appliances
+
+So when you say **ELB vs NLB**, you're likely comparing **ALB vs NLB**. Here's a breakdown:
+
+---
+
+### 🌐 **Application Load Balancer (ALB)**
+- **Layer**: 7 (Application Layer)
+- **Protocol Support**: HTTP, HTTPS, WebSocket
+- **Routing**: Smart routing based on URL path, host headers, query strings, etc.
+- **Use Case**: Web applications, microservices, container-based apps
+- **Features**:
+  - Content-based routing
+  - SSL termination
+  - WebSocket support
+  - Authentication via Cognito or OIDC
+  - Redirects and fixed responses
+
+---
+
+### 🔌 **Network Load Balancer (NLB)**
+- **Layer**: 4 (Transport Layer)
+- **Protocol Support**: TCP, UDP, TLS
+- **Routing**: Based on IP protocol data
+- **Use Case**: High-performance, low-latency apps (e.g., gaming, real-time systems)
+- **Features**:
+  - Handles millions of requests per second
+  - Preserves client IP
+  - Static IP support
+  - TLS termination (optional)
+  - Zonal failover
+
+---
+
+### 🆚 Summary Table
+
+| Feature                  | ALB (Application LB)         | NLB (Network LB)              |
+|--------------------------|------------------------------|-------------------------------|
+| OSI Layer                | Layer 7                      | Layer 4                       |
+| Protocols                | HTTP, HTTPS, WebSocket       | TCP, UDP, TLS                 |
+| Routing Type             | Content-based                | Connection-based              |
+| Performance              | Moderate                     | Very high                     |
+| Client IP Preservation   | No (unless using X-Forwarded-For) | Yes                     |
+| Static IP Support        | No                           | Yes                           |
+| SSL Termination          | Yes                          | Yes (optional)                |
+| Health Checks            | HTTP/HTTPS                   | TCP                           |
+| Use Case                 | Web apps, APIs               | Real-time apps, low latency   |
+
+---
+
+Would you like help choosing between ALB and NLB for a specific architecture or workload?
