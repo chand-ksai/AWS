@@ -1,0 +1,42 @@
+The difference between **Security Groups** and **Network Access Control Lists (NACLs)** in AWS (or similar cloud environments) lies in their **scope**, **rules**, and **behavior**. Here's a clear comparison:
+
+---
+
+### 🔐 **Security Groups**
+- **Level**: Instance-level (attached to EC2 instances).
+- **Type**: Stateful.
+- **Rules**: Only allow rules (no deny rules).
+- **Traffic Flow**: Automatically allows return traffic (stateful).
+- **Evaluation**: All rules are evaluated together; if one allows traffic, it's permitted.
+- **Use Case**: Fine-grained control over inbound/outbound traffic to specific instances.
+
+**Example**: If you allow inbound port 22 (SSH), the response traffic is automatically allowed outbound.
+
+---
+
+### 🧱 **Network ACLs (NACLs)**
+- **Level**: Subnet-level (applied to all resources in a subnet).
+- **Type**: Stateless.
+- **Rules**: Allow and deny rules.
+- **Traffic Flow**: Return traffic must be explicitly allowed (stateless).
+- **Evaluation**: Rules are evaluated in order (numbered list).
+- **Use Case**: Broad control over traffic entering and leaving a subnet.
+
+**Example**: If you allow inbound port 80, you must also allow outbound traffic explicitly for the response.
+
+---
+
+### 🔍 Summary Table
+
+| Feature               | Security Group              | NACL                          |
+|-----------------------|-----------------------------|-------------------------------|
+| Scope                 | EC2 Instance                 | Subnet                        |
+| Type                  | Stateful                     | Stateless                     |
+| Rules                 | Allow only                   | Allow and Deny                |
+| Evaluation            | All rules together           | Rule order matters            |
+| Return Traffic        | Automatically allowed        | Must be explicitly allowed    |
+| Default Behavior      | Deny all                     | Allow all                     |
+
+---
+
+Would you like a diagram to visualize this difference or a real-world analogy to make it even clearer?
