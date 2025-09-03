@@ -57,4 +57,59 @@ So when you say **ELB vs NLB**, you're likely comparing **ALB vs NLB**. Here's a
 
 ---
 
-Would you like help choosing between ALB and NLB for a specific architecture or workload?
+
+You're asking the right question—especially since you're working with containerized apps, ALB integrations, and Kubernetes. Here's a deep dive into **Application Load Balancer (ALB)** vs **Network Load Balancer (NLB)** in AWS, tailored to your kind of infrastructure mindset:
+
+---
+
+### ⚙️ Core Differences: ALB vs NLB
+
+| Feature                  | **Application Load Balancer (ALB)**                  | **Network Load Balancer (NLB)**                      |
+|--------------------------|------------------------------------------------------|------------------------------------------------------|
+| **Layer**                | Layer 7 (Application)                                | Layer 4 (Transport)                                  |
+| **Protocol Support**     | HTTP, HTTPS, gRPC                                    | TCP, UDP, TLS                                        |
+| **Routing Logic**        | Content-based (path, host, headers, query params)    | Connection-based (IP, port)                          |
+| **Performance**          | Great for web apps, moderate latency                 | Ultra-low latency, millions of connections           |
+| **IP Preservation**      | ❌ No (uses LB IP)                                   | ✅ Yes (preserves client IP)                         |
+| **Static IP / EIP**      | ❌ No                                                | ✅ Yes                                               |
+| **TLS Termination**      | ✅ Yes (with ACM)                                    | ✅ Yes (but limited features)                        |
+| **WebSocket Support**    | ✅ Yes                                               | ✅ Yes                                               |
+| **Health Checks**        | HTTP/HTTPS                                           | TCP                                                  |
+| **Use Cases**            | Microservices, REST APIs, web apps                   | Real-time apps, IoT, gaming, legacy TCP apps         |
+| **Kubernetes Integration**| Works with AWS Load Balancer Controller (Ingress)   | Works with service type `LoadBalancer`               |
+
+---
+
+### 🧠 When to Choose What
+
+#### ✅ Use **ALB** if:
+- You need **advanced routing** (e.g., `/api/*` to one target group, `/static/*` to another).
+- You're deploying **microservices** or **containerized apps** (e.g., ECS, EKS with Ingress).
+- You want **SSL termination**, **WAF integration**, or **OIDC authentication**.
+
+#### 🚀 Use **NLB** if:
+- You need **ultra-low latency** and **high throughput** (e.g., financial apps, gaming).
+- You're handling **non-HTTP protocols** (UDP, TCP, TLS).
+- You want to **preserve client IPs** for logging or security.
+- You're integrating with **Kubernetes service type `LoadBalancer`** (NLB is default).
+
+---
+
+### Can't ALB preserves Client IP ###
+
+Great catch—and yes, **ALB *can* preserve the original client IP**, but it does so differently than NLB.
+
+---
+
+### 🧠 How ALB Preserves Client IP
+
+ALB operates at **Layer 7**, so it doesn't pass the raw IP through the TCP connection like NLB does. Instead, it injects the client IP into the **`X-Forwarded-For` HTTP header**. Here's how it works:
+
+- When a request hits the ALB, it adds:
+  - `X-Forwarded-For`: Original client IP
+  - `X-Forwarded-Proto`: Original protocol (HTTP/HTTPS)
+  - `X-Forwarded-Port`: Original port
+
+Your backend app (e.g., Tomcat, Node.js, Flask) must **extract the IP from this header** rather than relying on the socket connection IP, which will be the ALB’s internal IP.
+
+---
