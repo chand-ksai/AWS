@@ -63,4 +63,45 @@ In that case, disable block settings **only for that bucket**, and use a tightly
 
 #####
 
+To **block public access to an S3 bucket**, AWS provides a feature called **"Block Public Access"** which can be configured at both the **account level** and **bucket level**. 
+
+Here's how you can do it:
+
+---
+
+### 🔒 **Steps to Block Public Access to an S3 Bucket**
+
+#### ✅ **Via AWS Console**
+1. **Go to the S3 service** in the AWS Management Console.
+2. **Select the bucket** you want to secure.
+3. Navigate to the **Permissions** tab.
+4. Click on **"Block public access (bucket settings)"**.
+5. Enable all the following options:
+   - Block all public access
+   - Block public access to buckets and objects granted through new ACLs
+   - Block public access to buckets and objects granted through any ACLs
+   - Block public access to buckets and objects granted through new public bucket policies
+6. Click **Save changes**.
+
+#### ✅ **Via AWS CLI**
+```bash
+aws s3api put-bucket-policy --bucket your-bucket-name --policy file://policy.json
+```
+
+Or to block public access directly:
+```bash
+aws s3api put-public-access-block \
+  --bucket your-bucket-name \
+  --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
+---
+
+### 🛡️ **Best Practices**
+- Avoid using bucket policies or ACLs that allow `Principal: "*"` (i.e., public access).
+- Use IAM roles and policies for controlled access.
+- Enable logging and monitoring with AWS CloudTrail and S3 Access Logs.
+
+---
 
