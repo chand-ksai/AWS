@@ -48,3 +48,9 @@ To convert a **private subnet into a public subnet** in AWS, you need to ensure 
 ---
 
 Would you like help generating a Terraform or CloudFormation snippet to automate this change?
+
+#######
+⚠️ Important Notes
+- You don’t need to recreate the subnet or move instances—just update the route table and IP settings.
+- If you're using a NAT Gateway, remove its route from the subnet’s route table to avoid conflicts.
+- EC2 instances in the subnet will need public IPs to be reachable from the internet.
