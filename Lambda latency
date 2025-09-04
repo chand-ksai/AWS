@@ -1,0 +1,50 @@
+**Lambda latency** refers to the time it takes for an AWS Lambda function to respond to an invocation. It can be broken down into several components:
+
+---
+
+### **1. Cold Start Latency**
+Occurs when a new instance of the Lambda function needs to be initialized (e.g., after a period of inactivity or scaling up):
+
+- **Initialization time**: Includes loading your code, initializing dependencies, and setting up the runtime environment.
+- **Typical range**: 100ms to several seconds depending on language, package size, and VPC configuration.
+
+---
+
+### **2. Warm Start Latency**
+Occurs when an already-initialized Lambda instance handles the request:
+
+- **Much faster**: Usually in the range of **a few milliseconds to a few hundred milliseconds**.
+
+---
+
+### **3. Network Latency**
+If your Lambda is triggered by or interacts with other services (e.g., API Gateway, S3, DynamoDB), network latency can add to the total response time.
+
+---
+
+### **4. VPC Latency**
+If your Lambda function is configured to run inside a VPC, it may experience additional latency due to:
+
+- ENI (Elastic Network Interface) setup during cold starts.
+- DNS resolution and routing within the VPC.
+
+---
+
+### **5. Execution Duration**
+This is the actual time your function takes to run your code logic. It depends on:
+
+- Code efficiency
+- External service calls
+- Resource usage
+
+---
+
+### **Monitoring Latency**
+You can monitor latency using:
+
+- **CloudWatch Metrics**: Look for `Duration`, `InitDuration`, and `MaxDuration`.
+- **X-Ray Tracing**: For detailed breakdowns of latency sources.
+
+---
+
+Would you like help optimizing Lambda latency or analyzing metrics from your own functions?
