@@ -60,3 +60,43 @@ You can also trigger Lambda from outside AWS:
 ---
 
 Would you like help setting up a specific trigger or exploring best practices for any of these?
+
+
+AWS Lambda functions can be triggered in a variety of ways—some direct, some event-driven. Here's a breakdown of the main categories and examples:
+
+---
+
+### 🧭 **Direct Invocation Methods**
+These are manual or programmatic ways to invoke a Lambda function:
+
+- **Lambda Console**: Run test events directly from the AWS Management Console.
+- **AWS CLI**: Use `aws lambda invoke` to trigger from the command line.
+- **AWS SDKs**: Programmatically invoke using SDKs (e.g., Python `boto3`, Node.js `@aws-sdk/client-lambda`).
+- **Lambda Invoke API**: Call the [Invoke API](https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html) directly.
+- **Function URLs**: Create a dedicated HTTPS endpoint to invoke the function via HTTP.
+
+---
+
+### 🔁 **Event-Driven Invocation (Triggers)**
+These are automatic invocations based on events from other AWS services:
+
+| **Trigger Type**           | **Examples**                                                                 |
+|----------------------------|------------------------------------------------------------------------------|
+| **HTTP-based**             | API Gateway, Application Load Balancer (ALB), Lambda Function URLs          |
+| **Storage Events**         | Amazon S3 (e.g., object created/deleted)                                    |
+| **Database Events**        | DynamoDB Streams, Amazon RDS Proxy                                          |
+| **Messaging Services**     | SNS (notifications), SQS (queues), EventBridge (scheduled or custom events) |
+| **Streaming Services**     | Kinesis Data Streams, Kafka                                                  |
+| **Authentication Events**  | Cognito (e.g., pre-signup, post-authentication)                             |
+| **Monitoring/Logging**     | CloudWatch Events, CloudWatch Logs (via subscription filters)               |
+| **IoT Events**             | AWS IoT Core                                                                 |
+| **Code/Build Events**      | CodeCommit, CodePipeline, CodeBuild                                          |
+
+---
+
+### 🧠 **Invocation Modes**
+- **Synchronous**: Waits for the function to return a response (e.g., API Gateway).
+- **Asynchronous**: Queues the event and returns immediately (e.g., S3, SNS).
+- **Event Source Mapping**: Batches records from streams/queues (e.g., Kinesis, SQS).
+
+---
