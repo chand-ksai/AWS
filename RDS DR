@@ -1,0 +1,56 @@
+**Disaster recovery (DR) is the strategy and process to restore IT systems and data after a failure. For Amazon RDS, DR involves backups, replication, and failover mechanisms to minimize downtime and data loss.**
+
+---
+
+### 🛡️ What Is Disaster Recovery?
+
+Disaster recovery refers to the *planned approach to restore critical systems and data* after unexpected events like hardware failure, cyberattacks, natural disasters, or human error. The goal is to ensure business continuity with minimal disruption.
+
+Key DR concepts:
+- **RTO (Recovery Time Objective):** How quickly you need to recover.
+- **RPO (Recovery Point Objective):** How much data loss is acceptable.
+
+---
+
+### 🗄️ How to Do Disaster Recovery for Amazon RDS
+
+Amazon RDS offers several built-in features to support DR:
+
+#### 1. **Automated Backups**
+- RDS automatically backs up your database daily and retains transaction logs.
+- You can restore to any point within the backup retention window (up to 35 days).
+- *Best for recovering from data corruption or accidental deletion.*
+
+#### 2. **Manual Snapshots**
+- You can take snapshots anytime and retain them indefinitely.
+- Snapshots can be shared across AWS accounts or copied to other regions.
+- *Useful for long-term backups or cross-region DR.*
+
+#### 3. **Multi-AZ Deployments**
+- RDS can automatically replicate your DB to a standby instance in a different Availability Zone.
+- In case of failure, RDS performs automatic failover to the standby.
+- *Provides high availability and fast recovery.*
+
+#### 4. **Read Replicas**
+- You can create read-only replicas in the same or different regions.
+- Replicas can be promoted to standalone DBs during disaster.
+- *Ideal for scaling reads and cross-region recovery.*
+
+#### 5. **Cross-Region Snapshot Copy**
+- Snapshots can be copied to another AWS region.
+- Enables recovery even if an entire region goes down.
+
+---
+
+### ✅ Best Practices for RDS Disaster Recovery
+
+- **Enable Multi-AZ for production workloads.**
+- **Set up automated backups and test restores regularly.**
+- **Use cross-region snapshot copies for regional DR.**
+- **Monitor RDS health and set up alerts.**
+- **Document and rehearse your recovery procedures.**
+
+For a deeper dive, check out [AWS’s official blog on RDS disaster recovery](https://aws.amazon.com/blogs/database/implementing-a-disaster-recovery-strategy-with-amazon-rds/) 
+and the [AWS DR workshop page for RDS](https://disaster-recovery.workshop.aws/en/services/databases/rds.html).
+
+Would you like help setting up Multi-AZ or snapshot replication in Terraform?
