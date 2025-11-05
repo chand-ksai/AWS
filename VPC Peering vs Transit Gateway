@@ -1,0 +1,194 @@
+**VPC Peering is a simple, one-to-one connection between two VPCs, while Transit Gateway is a scalable hub-and-spoke model that connects multiple VPCs and on-prem networks through a central gateway.**
+
+---
+
+### 🔁 VPC Peering
+
+**VPC Peering** allows direct communication between two VPCs using private IPs.
+
+- **Topology:** One-to-one (mesh required for many VPCs)
+- **Routing:** Manual route table updates per connection
+- **Limitations:**
+  - No transitive routing (VPC A can't reach VPC C via VPC B)
+  - Complex to scale beyond a few VPCs
+- **Use Case:** Small setups or direct VPC-to-VPC communication
+
+---
+
+### 🌐 Transit Gateway
+
+**Transit Gateway (TGW)** acts as a central hub to connect multiple VPCs and on-prem networks.
+
+- **Topology:** Hub-and-spoke
+- **Routing:** Centralized routing via TGW route tables
+- **Benefits:**
+  - Supports transitive routing
+  - Scales to thousands of VPCs
+  - Simplifies management and connectivity
+- **Use Case:** Large-scale architectures, multi-account setups, hybrid cloud
+
+---
+
+### 🧭 Comparison Table
+
+| Feature                  | VPC Peering                     | Transit Gateway                      |
+|--------------------------|----------------------------------|--------------------------------------|
+| **Connection Type**      | One-to-one                      | Hub-and-spoke                        |
+| **Transitive Routing**   | ❌ Not supported                 | ✅ Supported                         |
+| **Scalability**          | Limited (mesh complexity)       | High (thousands of VPCs)             |
+| **Routing Management**   | Manual per connection           | Centralized via TGW route tables     |
+| **Cross-Region Support** | ✅ Supported                    | ✅ Supported                         |
+| **Pricing**              | Free (data transfer charges)    | Charged per attachment and data      |
+
+Sources: [GeeksforGeeks](https://www.geeksforgeeks.org/cloud-computing/amazon-web-services-aws-transit-gateway-vs-vpc-peering/), [DEV Community](https://dev.to/aws-builders/aws-vpc-peering-vs-transit-gateway-which-one-should-you-use-4dmm), [AWS Builder Center](https://builder.aws.com/content/2nrZ0lMno8jnIhR8IAWaP4IL5FN/vpc-peering-vs-transit-gateway-with-simple-analogies)
+
+---
+
+If you're building a multi-account or multi-region architecture, Transit Gateway is usually the better choice. Want help wiring this into your Terraform setup?
+
+##############################
+
+**To configure route tables for VPC peering, you must manually add routes in both VPCs that direct traffic to the peer VPC’s CIDR block using the peering connection ID as the target.**
+
+---
+
+### 🛠️ Step-by-Step: Route Table Setup for VPC Peering
+
+Once your VPC peering connection is **accepted**, follow these steps to enable communication between instances in the two VPCs:
+
+#### 1. **Identify the CIDR Blocks**
+- Note the CIDR block of each VPC (e.g., VPC A: `10.0.0.0/16`, VPC B: `10.1.0.0/16`).
+
+#### 2. **Get the Peering Connection ID**
+- Go to **VPC Dashboard → Peering Connections**.
+- Copy the **Peering Connection ID** (e.g., `pcx-abc123`).
+
+#### 3. **Update Route Table in VPC A**
+- Go to **VPC Dashboard → Route Tables**.
+- Select the route table associated with the subnets in VPC A.
+- Click **Routes → Edit Routes → Add Route**:
+  - **Destination:** CIDR block of VPC B (e.g., `10.1.0.0/16`)
+  - **Target:** Peering Connection ID (`pcx-abc123`)
+- Save the route.
+
+#### 4. **Update Route Table in VPC B**
+- Repeat the same steps for VPC B:
+  - **Destination:** CIDR block of VPC A (`10.0.0.0/16`)
+  - **Target:** Peering Connection ID (`pcx-abc123`)
+- Save the route.
+
+#### 5. **Verify Security Groups**
+- Ensure that security groups in both VPCs allow inbound/outbound traffic from the peer VPC’s CIDR block.
+
+---
+
+### 📌 Example Terraform Snippet
+
+```hcl
+resource "aws_route" "vpc_a_to_b" {
+  route_table_id         = aws_route_table.vpc_a_rt.id
+  destination_cidr_block = "10.1.0.0/16"
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
+}
+
+resource "aws_route" "vpc_b_to_a" {
+  route_table_id         = aws_route_table.vpc_b_rt.id
+  destination_cidr_block = "10.0.0.0/16"
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
+}
+```
+
+---
+
+For full guidance, check [AWS’s official route table configuration guide](https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-routing.html).
+
+Would you like help wiring this into your Terraform module or checking your route table logic?
+
+
+
+##############
+**To configure route tables for a VPC connected to a Transit Gateway, you must create a Transit Gateway route table, associate it with your VPC attachment, and propagate routes from the VPC to the table. This enables centralized routing across multiple VPCs.**
+
+---
+
+### 🧭 Step-by-Step: Route Configuration for AWS Transit Gateway
+
+Transit Gateway (TGW) uses its own route tables to manage traffic between VPCs, VPNs, and other attachments. Here's how to set it up:
+
+#### 1. **Create a Transit Gateway**
+- Go to **VPC Console → Transit Gateways → Create Transit Gateway**
+- Set a name, enable DNS support and ECMP (if needed), and click **Create**
+
+#### 2. **Attach VPCs to the Transit Gateway**
+- Go to **Transit Gateway Attachments → Create Attachment**
+- Choose your TGW and VPC
+- Select subnets in each Availability Zone
+- Click **Create Attachment**
+
+#### 3. **Create a Transit Gateway Route Table**
+- Go to **Transit Gateway Route Tables → Create Route Table**
+- Assign a name and select the TGW
+- Click **Create**
+
+#### 4. **Associate Attachments with the Route Table**
+- In the TGW Route Table, go to **Associations → Create Association**
+- Select the VPC attachment you want to associate
+
+#### 5. **Enable Route Propagation**
+- In the TGW Route Table, go to **Propagations → Create Propagation**
+- Select the VPC attachment to allow its routes to be propagated
+
+#### 6. **Add Static Routes (if needed)**
+- In the TGW Route Table, go to **Routes → Create Route**
+- Add destination CIDR blocks and select the appropriate attachment as the target
+
+#### 7. **Update VPC Route Tables**
+- In each VPC, go to **Route Tables → Edit Routes**
+- Add a route:
+  - **Destination:** CIDR of the other VPC
+  - **Target:** Transit Gateway ID
+
+---
+
+### 🧱 Example Terraform Snippet
+
+```hcl
+resource "aws_ec2_transit_gateway" "tgw" {
+  description = "My TGW"
+  amazon_side_asn = 64512
+}
+
+resource "aws_ec2_transit_gateway_vpc_attachment" "vpc_a" {
+  transit_gateway_id = aws_ec2_transit_gateway.tgw.id
+  vpc_id             = aws_vpc.vpc_a.id
+  subnet_ids         = aws_subnet.vpc_a_subnets[*].id
+}
+
+resource "aws_ec2_transit_gateway_route_table" "rt" {
+  transit_gateway_id = aws_ec2_transit_gateway.tgw.id
+}
+
+resource "aws_ec2_transit_gateway_route_table_association" "assoc" {
+  transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.vpc_a.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt.id
+}
+
+resource "aws_ec2_transit_gateway_route_table_propagation" "prop" {
+  transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.vpc_a.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt.id
+}
+```
+
+---
+
+### ✅ Best Practices
+
+- **Use separate route tables for isolated traffic flows** (e.g., dev vs prod)
+- **Enable propagation only where needed** to avoid route leaks
+- **Tag resources clearly** for easier management
+- **Test connectivity** between VPCs after setup
+
+You can explore more in [AWS’s official TGW route table documentation](https://docs.aws.amazon.com/vpc/latest/tgw/tgw-route-tables.html)or this [AWS for Engineers guide](https://awsforengineers.com/blog/aws-transit-gateway-route-tables-explained/).
+
+Would you like help wiring this into your Terraform module or visualizing the architecture?
+
